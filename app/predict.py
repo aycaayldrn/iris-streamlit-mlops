@@ -8,6 +8,7 @@ MODEL_PATH = os.path.join(PROJECT_ROOT, "model.joblib")
 
 # 1. load the trained model frm the file
 try:
+    print(f"DEBUG: Attempting to load model from: {MODEL_PATH}")
     model = joblib.load(MODEL_PATH)
     print("Model loaded successfully.")
 except FileNotFoundError:
