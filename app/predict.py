@@ -3,7 +3,8 @@ import numpy as np
 import os
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = "model.joblib"
+PROJECT_ROOT = os.path.dirname(APP_DIR)
+MODEL_PATH = os.path.join(PROJECT_ROOT, "model.joblib")
 
 # 1. load the trained model frm the file
 try:
