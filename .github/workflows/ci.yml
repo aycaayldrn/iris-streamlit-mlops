@@ -1,0 +1,62 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, '*' ]
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # --- Continuous Integration (CI) - Install and Test ---
+
+      # 2. Setup Python,configure the Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      # 3. Install Dependencies,install all packages from requirements.txt, including pytest.
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest
+
+      # 4. Run Tests (pytest),execute the tests in the tests/ directory.
+      - name: Run Pytest
+        run: pytest
+
+      # --- Continuous Delivery (CD) - Docker Build and Push ---
+
+      # 5. Login to GitHub Container Registry (GHCR)
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 6. Set up Image Metadata,define tags and labels for the image.
+      - name: Docker Metadata Action
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          # Define the image name for GHCR. This is ghcr.io/<owner>/<repo-name>
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
+            type=sha,format=short
+
+      # 7. Build and Push Docker Image
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
