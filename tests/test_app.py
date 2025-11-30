@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from app.predict import predict
+from app import predict
 
 # Example: features for a Setosa (known to be class 0)
 TEST_FEATURES = [5.1, 3.5, 1.4, 0.2]
