@@ -1,10 +1,11 @@
 import joblib
 import numpy as np
 import os
+from pathlib import Path
 
-APP_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(APP_DIR)
-MODEL_PATH = os.path.join(PROJECT_ROOT, "model.joblib")
+APP_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = APP_DIR.parent
+MODEL_PATH = PROJECT_ROOT / "model.joblib"
 
 # 1. load the trained model frm the file
 try:
