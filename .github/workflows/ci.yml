@@ -30,8 +30,7 @@ jobs:
       # 4. Run Tests (pytest),execute the tests in the tests/ directory.
       - name: Run Pytest
         run: |
-          export PYTHONPATH=$PYTHONPATH:$PWD/app
-          pytest
+          python -m pytest tests/test_app.py --pyargs app -s
 
       # --- Continuous Delivery (CD) - Docker Build and Push ---
 
