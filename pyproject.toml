@@ -7,4 +7,5 @@ name = "iris-streamlit-mlops"
 version = "0.1.0"
 description = "Iris ML Project for Streamlit Deployment"
 
+[tool.setuptools]
 packages = ["app"]
