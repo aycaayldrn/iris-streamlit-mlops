@@ -1,6 +1,5 @@
 import joblib
 import numpy as np
-import os
 from pathlib import Path
 
 APP_DIR = Path(__file__).resolve().parent
@@ -10,7 +9,7 @@ MODEL_PATH = PROJECT_ROOT / "model.joblib"
 # 1. load the trained model frm the file
 try:
     print(f"DEBUG: Attempting to load model from: {MODEL_PATH}")
-    model = joblib.load(MODEL_PATH)
+    model = joblib.load(str(MODEL_PATH))
     print("Model loaded successfully.")
 except FileNotFoundError:
     print(f"Error: Model file not found at {MODEL_PATH}")
