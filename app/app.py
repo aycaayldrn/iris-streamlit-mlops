@@ -1,54 +1,128 @@
-import streamlit as st
-from predict import predict
-import numpy as np
+import json
+from pathlib import Path
 
-# 1. set up the page title and description
+import numpy as np
+import streamlit as st
+
+from predict import predict
+
+# ---------- load metadata ----------
+
+APP_DIR = Path(__file__).resolve().parent
+META_PATH = APP_DIR / "model_meta.json"
+
+
+def load_metadata():
+    if not META_PATH.exists():
+        # Fallback if metadata is missing
+        return {
+            "version": "unknown",
+            "best_model": "unknown",
+            "mlflow_run_id": "unknown",
+            "metrics": {}
+        }
+    with META_PATH.open("r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+meta = load_metadata()
+version = meta.get("version", "unknown")
+best_model = meta.get("best_model", "unknown")
+run_id = meta.get("mlflow_run_id", "unknown")
+metrics = meta.get("metrics", {})
+
+# accuracy comes directly from your JSON
+accuracy = metrics.get("accuracy")
+
+# ---------- page layout ----------
+
+st.set_page_config(page_title="Iris Species Predictor", layout="centered")
+
 st.title("Iris Species Predictor 💋🌸💋")
 st.write(
     "Enter the measurements of an Iris flower to predict its species. "
     "This app uses a machine learning model to make a prediction."
 )
 
-# 2. define the species names for predictions.
-# the model predicts an index (0, 1, or 2), which we map to these names.
-species_names = ['Setosa', 'Versicolor', 'Virginica']
+# species names for predictions
+species_names = ["Setosa", "Versicolor", "Virginica"]
 
-# 3. create input fields for flower measurements
-st.header("Enter Flower Measurements (in cm)")
+# input fields
+st.header("Enter flower measurements (in cm)")
 
 col1, col2 = st.columns(2)
 
 with col1:
-    sepal_length = st.number_input("Sepal Length", min_value=0.0, format="%.1f")
-    petal_length = st.number_input("Petal Length", min_value=0.0, format="%.1f")
+    sepal_length = st.number_input("Sepal length", min_value=0.0, format="%.1f")
+    petal_length = st.number_input("Petal length", min_value=0.0, format="%.1f")
 
 with col2:
-    sepal_width = st.number_input("Sepal Width", min_value=0.0, format="%.1f")
-    petal_width = st.number_input("Petal Width", min_value=0.0, format="%.1f")
+    sepal_width = st.number_input("Sepal width", min_value=0.0, format="%.1f")
+    petal_width = st.number_input("Petal width", min_value=0.0, format="%.1f")
 
-# 4. create the prediction button
-if st.button("Predict Species"):
-    # 5. collect user inputs into a list
+# prediction button
+if st.button("Predict species"):
     features = [sepal_length, sepal_width, petal_length, petal_width]
 
-    # 6. prediction
     prediction_result = predict(features)
 
-    # 7. display the prediction and image
     if isinstance(prediction_result, (int, list, np.ndarray)):
-        species_index = prediction_result[0]
-        predicted_species = species_names[species_index]
+        # normalise to an index
+        if isinstance(prediction_result, int):
+            species_index = prediction_result
+        else:
+            species_index = prediction_result[0]
 
-        st.success(f"The predicted species is: **{predicted_species}**")
+        try:
+            species_index = int(species_index)
+            predicted_species = species_names[species_index]
+        except (IndexError, ValueError, TypeError):
+            st.error(f"Unexpected prediction output: {prediction_result}")
+        else:
+            st.success(f"The predicted species is: **{predicted_species}**")
 
-        if predicted_species == 'Setosa':
-            st.image("https://upload.wikimedia.org/wikipedia/commons/5/56/Kosaciec_szczecinkowaty_Iris_setosa.jpg",
-                     caption="Iris Setosa")
-        elif predicted_species == 'Versicolor':
-            st.image("https://upload.wikimedia.org/wikipedia/commons/4/41/Iris_versicolor_3.jpg",
-                     caption="Iris Versicolor")
-        elif predicted_species == 'Virginica':
-            st.image("https://upload.wikimedia.org/wikipedia/commons/9/9f/Iris_virginica.jpg", caption="Iris Virginica")
-
+            if predicted_species == "Setosa":
+                st.image(
+                    "https://upload.wikimedia.org/wikipedia/commons/5/56/"
+                    "Kosaciec_szczecinkowaty_Iris_setosa.jpg",
+                    caption="Iris setosa",
+                )
+            elif predicted_species == "Versicolor":
+                st.image(
+                    "https://upload.wikimedia.org/wikipedia/commons/4/41/"
+                    "Iris_versicolor_3.jpg",
+                    caption="Iris versicolor",
+                )
+            elif predicted_species == "Virginica":
+                st.image(
+                    "https://upload.wikimedia.org/wikipedia/commons/9/9f/"
+                    "Iris_virginica.jpg",
+                    caption="Iris virginica",
+                )
     else:
+        # predict() returned an error string or similar
         st.error(prediction_result)
+
+# ---------- footer with metadata ----------
+
+st.markdown("---")
+st.markdown("### Model information")
+
+# clickable link to MLflow UI (adjust if you use a different host/port)
+mlflow_ui_url = "http://localhost:5000"
+
+# format accuracy nicely if available
+if isinstance(accuracy, (int, float)):
+    accuracy_str = f"{accuracy:.3f}"
+else:
+    accuracy_str = "unknown"
+
+footer_text = (
+    f"Version: **{version}** • "
+    f"Best model: **{best_model}** • "
+    f"MLflow run: `{run_id}` • "
+    f"Accuracy: **{accuracy_str}** • "
+    f"[Open MLflow UI]({mlflow_ui_url})"
+)
+
+st.markdown(footer_text)

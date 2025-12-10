@@ -1,0 +1,9 @@
+{
+  "best_model": "KNN",
+  "metrics": {
+    "accuracy": 0.977778,
+    "f1_macro": 0.977753
+  },
+  "mlflow_run_id": "8be9be71dd6145619d28b08538b2d658",
+  "version": "v1.0.0"
+}

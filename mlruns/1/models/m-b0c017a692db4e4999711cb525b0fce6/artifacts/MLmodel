@@ -1,0 +1,22 @@
+artifact_path: file:C:/Users/Laptop/PycharmProjects/iris-streamlit-mlops/mlruns/1/models/m-b0c017a692db4e4999711cb525b0fce6/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.13.1
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.8.0
+mlflow_version: 3.7.0
+model_id: m-b0c017a692db4e4999711cb525b0fce6
+model_size_bytes: 9869
+model_uuid: m-b0c017a692db4e4999711cb525b0fce6
+prompts: null
+run_id: 8be9be71dd6145619d28b08538b2d658
+utc_time_created: '2025-12-10 22:27:39.638938'
